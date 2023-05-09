@@ -9,11 +9,6 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const [activeTab, setActiveTab] = useState('Stopwatch');
 
-  const setTab = (name: string) => {
-    setActiveTab(name);
-    return;
-  }
-
   return (
     <>
       <Head>
@@ -26,22 +21,22 @@ export default function Home() {
         <div className='menu-bar'>
           <button
             className='menu-button'
-            onClick={() => { setActiveTab("Stopwatches") }}
+            onClick={() => setActiveTab("Stopwatches") }
           >Stopwatches</button>
 
           <button
             className='menu-button'
-            onClick={() => { setActiveTab("Timers") }}
+            onClick={() => setActiveTab("Timers") }
           >Timers</button>
 
           <button
             className='menu-button'
-            onClick={() => { setActiveTab("Alarms") }}
+            onClick={() => setActiveTab("Alarms") }
           >Alarms</button>
 
           <button
             className='menu-button'
-            onClick={() => { setActiveTab("Clocks") }}
+            onClick={() => setActiveTab("Clocks") }
           >Clocks</button>
         </div>
 
