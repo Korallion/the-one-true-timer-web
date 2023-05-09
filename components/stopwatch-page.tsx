@@ -14,10 +14,12 @@ function Stopwatch () {
         }, 10);
     }
 
+    let displayTime = Math.round((duration - startTime)/10)/100;
+
     return (
         <div>
             <h1>Stopwatch</h1>
-            <h2>Duration: {duration - startTime}</h2>
+            <h2>Duration: {displayTime}</h2>
             <button
                 onClick={()=>StartStopwatch()}
             >Start</button>
@@ -26,12 +28,20 @@ function Stopwatch () {
 }
 
 export function StopwatchPage () {
-    const [stopwatches, setStopwatches] = useState();
+    const [numWatches, setNumWatches] = useState([1]);
+
+    const stopwatches = numWatches.map((number) => {
+        return (<Stopwatch/>)
+    });
 
     return (
         <>
-            <Stopwatch />
+            <button onClick={() => {
+                const newItem = numWatches[-1] + 1;
+                let newNumber = [...numWatches, newItem ];
+                setNumWatches(newNumber);
+            }}>Add Stopwatch</button>
+            {stopwatches}
         </>
-
     )
 }
