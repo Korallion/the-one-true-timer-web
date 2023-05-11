@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import { useState } from 'react';
 import Head from 'next/head';
@@ -7,10 +6,10 @@ import { StopwatchPage } from '@/components/stopwatch-page';
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('Stopwatch');
+  const [activeTab, setActiveTab] = useState('Stopwatches');
 
   return (
-    <>
+    <div>
       <Head>
         <title>TOTT</title>
         <link rel="icon" href="/favicon.ico" />
@@ -44,6 +43,6 @@ export default function Home() {
           {activeTab === "Stopwatches" ? <StopwatchPage /> : activeTab}
         </div>
       </body>
-    </>
+    </div>
   )
 }

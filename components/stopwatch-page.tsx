@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { start } from "repl";
-
 
 function Stopwatch ({id, deleteStopwatch}: {id:number, deleteStopwatch: (id: number) => void}) {
     const [startTime, setStartTime] = useState(0);
@@ -31,39 +29,41 @@ function Stopwatch ({id, deleteStopwatch}: {id:number, deleteStopwatch: (id: num
 }
 
 export function StopwatchPage () {
-    const [numWatches, setNumWatches] = useState([1]);
+    const [watchIds, setWatchIds] = useState([1]);
 
-    function deleteStopwatch(id: number) {
-        const index = numWatches.findIndex((value: number) => value === id);
-        const newStopwatches = [...numWatches];
-        newStopwatches.splice(index, 1);
+    function addStopwatch() {
+        if (watchIds.length !== 0) {
+            const newItem = watchIds[watchIds.length-1] + 1;
+            let newNumber = [...watchIds, newItem ];
+            setWatchIds(newNumber);
+            return;
+        }
 
-        setNumWatches(newStopwatches);
+        setWatchIds([1]);
     }
 
-    const stopwatches = numWatches.map((number) => {
+    function deleteStopwatch(id: number) {
+        const index = watchIds.findIndex((value: number) => value === id);
+        const newStopwatches = [...watchIds];
+        newStopwatches.splice(index, 1);
+
+        setWatchIds(newStopwatches);
+    }
+
+    const stopwatches = watchIds.map((id) => {
         return (
             <Stopwatch
-                id={number}
+                id={id}
+                key={id}
                 deleteStopwatch={deleteStopwatch}
             />
         )});
 
     return (
         <>
-            <button onClick={() => {
-                if (numWatches.length !== 0) {
-                    const newItem = numWatches[numWatches.length-1] + 1;
-                    let newNumber = [...numWatches, newItem ];
-                    setNumWatches(newNumber);
-                    return;
-                }
-
-                setNumWatches([1]);
-                
-            }}>Add Stopwatch</button>
+            <button onClick={() => addStopwatch()}>Add Stopwatch</button>
             {stopwatches}
-            {numWatches.toString()}
+            {watchIds.toString()}
         </>
     )
 }
