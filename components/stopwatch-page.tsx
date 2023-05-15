@@ -1,15 +1,36 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 function Stopwatch ({id, deleteStopwatch}: {id:number, deleteStopwatch: (id: number) => void}) {
     const [startTime, setStartTime] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [paused, setPaused] = useState(false);
+    const intervalID = useRef<NodeJS.Timer>();
 
     function startStopwatch () {
         setStartTime(Date.now);
 
-        setInterval(() => {
+        const id = setInterval(() => {
             setDuration(Date.now);
         }, 10);
+
+        intervalID.current = id;
+        setPaused(false);
+    }
+
+    function pauseStopwatch () {
+        if (!paused){
+            clearInterval(intervalID.current);
+            setPaused(true);
+        } else {
+            setStartTime(Date.now() - (duration - startTime));
+
+            const id = setInterval(() => {
+                setDuration(Date.now);
+            }, 10);
+    
+            intervalID.current = id;
+            setPaused(false);
+        }
     }
 
     let displayTime = Math.round((duration - startTime)/10)/100;
@@ -20,7 +41,10 @@ function Stopwatch ({id, deleteStopwatch}: {id:number, deleteStopwatch: (id: num
             <h2>Duration: {displayTime}</h2>
             <button
                 onClick={() => startStopwatch()}
-            >Start</button>
+            >{ duration === 0 ? "Start" : "Restart"}</button>
+            <button
+                onClick={() => pauseStopwatch()}
+            >{paused ? "Resume" : "Pause"}</button>
             <button
                 onClick={() => {deleteStopwatch(id)}}
             >Delete</button>
