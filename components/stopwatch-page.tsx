@@ -4,7 +4,7 @@ function Stopwatch({ id, deleteStopwatch }: { id: number, deleteStopwatch: (id: 
     const [startTime, setStartTime] = useState(0);
     const [now, setNow] = useState(0);
     const [paused, setPaused] = useState(false);
-    const [laps, setLaps] = useState<Array<string>>([])
+    const [laps, setLaps] = useState<Array<string>>([]);
     const intervalID = useRef<NodeJS.Timer>();
 
     function startStopwatch() {
