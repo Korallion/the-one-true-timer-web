@@ -66,34 +66,53 @@ function TimePicker({setDuration}) {
 
 function Timer() {
     const [duration, setDuration] = useState(0);
-    const [now, setNow] = useState(0);
+    const [remainingTime, setRemaingingTime] = useState(0);
     const [paused, setPaused] = useState(true);
 
-    let endTime = useRef(0);
+    let startTime = useRef(0);
+    let pausedTime = useRef(0);
     let intervalID = useRef<NodeJS.Timer>();
 
     function startTimer() {
-        endTime.current = Date.now() + duration;
+        /*if (intervalID.current) {
+            clearInterval(intervalID.current);
+        }*/
+
+        startTime.current = Date.now();
 
         const id = setInterval(() => {
-            setNow(Date.now());
-        }, 10)
+            let newValue = startTime.current + duration - Date.now();
+            setRemaingingTime(newValue);
+        }, 10);
 
         intervalID.current = id;
         setPaused(false);
     }
 
-    function endTimer() {
-        clearInterval(intervalID.current);
+    function togglePause() {
+        if (!paused) {
+            pausedTime.current = Date.now();
+            clearInterval(intervalID.current);
+            setPaused(true);
+        } else {
+            startTime.current = Date.now() + remainingTime - duration;
+
+            const id = setInterval(() => {
+                let newValue = startTime.current + duration - Date.now();
+                setRemaingingTime(newValue);
+            }, 10);
+
+            intervalID.current = id;
+            setPaused(false);
+        }
     }
 
-    let displayTime = Math.round((endTime.current - now) / 10) / 100;
+    let displayTime = Math.round((remainingTime) / 10) / 100;
 
     if (displayTime <= 0) {
         displayTime = 0;
-        endTimer();
+        clearInterval(intervalID.current);
     }
-
 
     let hours = Math.floor(displayTime / 3600);
     let minutes = Math.floor(displayTime % 3600 / 60);
@@ -106,9 +125,8 @@ function Timer() {
             <h2>{hours + ':' + minutes + ':' + seconds.toFixed(2)}</h2>
             <button onClick={() => {
                 startTimer();
-                setPaused(false);
                 }}>Start</button>
-            <button onClick={() => {setPaused(true)}}>Pause</button>
+            <button onClick={togglePause}>{ paused ? "Resume" : "Pause"}</button>
         </div>
     )
 }
