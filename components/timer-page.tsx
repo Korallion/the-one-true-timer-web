@@ -60,7 +60,7 @@ function TimePicker(
         setDuration(convertClockTextToTime(newInput));
     }
 
-    let clockText : string;
+    let clockText: string;
 
     if (active && remainingTime === 0) {
         clockText = "000000";
@@ -75,7 +75,7 @@ function TimePicker(
     return (
         <div>
             <input
-                value={clockText.slice(0,2)}
+                value={clockText.slice(0, 2)}
                 className="text-black"
                 type="text"
                 onKeyDown={(e) => handleTimerInput(e, "hours")}
@@ -86,7 +86,7 @@ function TimePicker(
             />
             <text>h</text>
             <input
-                value={clockText.slice(2,4)}
+                value={clockText.slice(2, 4)}
                 className="text-black"
                 type="text"
                 onKeyDown={(e) => handleTimerInput(e, "minutes")}
@@ -97,7 +97,7 @@ function TimePicker(
             />
             <text>m</text>
             <input
-                value={clockText.slice(4,6)}
+                value={clockText.slice(4, 6)}
                 className="text-black"
                 type="text"
                 onKeyDown={(e) => handleTimerInput(e, "seconds")}
@@ -111,7 +111,7 @@ function TimePicker(
     )
 }
 
-function Timer() {
+function Timer({id, deleteTimer} : {id : number, deleteTimer : (id : number) => void}) {
     const [duration, setDuration] = useState(0);
     const [remainingTime, setRemainingTime] = useState(0);
     const [paused, setPaused] = useState(true);
@@ -132,24 +132,24 @@ function Timer() {
                 clearInterval(intervalID.current);
                 setRemainingTime(0);
                 console.log("Timer ended with no repetitions");
-    
-            } else if (repeatCounter.current === repetitions){
+
+            } else if (repeatCounter.current === repetitions) {
                 clearInterval(intervalID.current);
                 setRemainingTime(0);
                 console.log("Timer ended with " + repeatCounter.current + " repetitions");
-    
+
             } else {
                 clearInterval(intervalID.current);
-    
+
                 startTime.current = Date.now();
-    
+
                 setRemainingTime(duration);
-    
+
                 const id = setInterval(() => {
                     let newValue = startTime.current + duration - Date.now();
                     setRemainingTime(newValue);
                 }, 10);
-    
+
                 intervalID.current = id;
                 setPaused(false);
                 setActive(true);
@@ -202,7 +202,7 @@ function Timer() {
 
     return (
         <div>
-            <h1>Timer</h1>
+            <h1>{`Timer ${id}`}</h1>
             <TimePicker
                 setDuration={setDuration}
                 remainingTime={remainingTime}
@@ -211,7 +211,7 @@ function Timer() {
                 active={active}
                 setActive={setActive}
             />
-            <button onClick={() => {startTimer()}}>{active ? "Restart" : "Start"}</button>
+            <button onClick={() => { startTimer() }}>{active ? "Restart" : "Start"}</button>
             <button onClick={togglePause}>{paused ? "Resume" : "Pause"}</button>
             {
                 repetitions === 0
@@ -223,16 +223,47 @@ function Timer() {
                         </div>
                     )
             }
+            <button onClick={() => {deleteTimer(id)}}>Delete</button>
         </div>
     )
 }
 
 export function TimerPage() {
-    let [timers, setTimers] = useState();
+    const [timerIds, setTimerIds] = useState<Array<number>>([1]);
+
+    function addTimer() {
+        if (timerIds.length) {
+            const newId = timerIds[timerIds.length - 1] + 1;
+            const newTimerSet = [...timerIds, newId];
+
+            setTimerIds(newTimerSet);
+
+        } else {
+            setTimerIds([1]);
+        }
+    }
+
+    function deleteTimer(id: number) {
+        const index = timerIds.findIndex((item : number) => item === id);
+        const newIds = [...timerIds];
+
+        newIds.splice(index, 1);
+        setTimerIds(newIds);
+    }
+
+    const timers = timerIds.map((id) => {
+        return (
+        <Timer 
+            id={id}
+            key={id}
+            deleteTimer={deleteTimer}
+        />
+    )});
 
     return (
         <div>
-            <Timer />
+            <button onClick={addTimer}>Add Timer</button>
+            {timers}
         </div>
     )
 }

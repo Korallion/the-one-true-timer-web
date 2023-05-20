@@ -61,7 +61,7 @@ function Stopwatch({ id, deleteStopwatch }: { id: number, deleteStopwatch: (id: 
 
     return (
         <div>
-            <h1>Stopwatch</h1>
+            <h1>{`Stopwatch ${id}`}</h1>
             <h2>Duration: {displayTime}</h2>
             <button
                 onClick={() => startStopwatch()}
@@ -117,7 +117,6 @@ export function StopwatchPage() {
         <>
             <button onClick={() => addStopwatch()}>Add Stopwatch</button>
             {stopwatches}
-            {watchIds.toString()}
         </>
     )
 }
