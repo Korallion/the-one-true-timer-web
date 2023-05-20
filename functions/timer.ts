@@ -12,6 +12,10 @@ export function convertSecondsToClockText<String>(time: number) {
     return hoursText + minutesText + secondsText;
 }
 
-function convertTextToTime() {
+export function convertClockTextToTime<Number>(text: string) {
+    let hours = Number(text.slice(0, 2));
+    let minutes = Number(text.slice(2, 4));
+    let seconds = Number(text.slice(-2));
 
+    return (hours * 60 * 60 + minutes * 60 + seconds) * 1000;
 }

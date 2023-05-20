@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction, useRef, useState } from "react";
-import { convertSecondsToClockText } from "@/functions/timer";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { convertSecondsToClockText, convertClockTextToTime } from "@/functions/timer";
 
 function TimePicker(
     { setDuration, remainingTime, intervalID, startTimer, active, setActive }:
@@ -14,7 +14,7 @@ function TimePicker(
 
     const [userInput, setUserInput] = useState("000000");
 
-    function handleInput(e: React.KeyboardEvent<HTMLInputElement>, timeUnit: string) {
+    function handleTimerInput(e: React.KeyboardEvent<HTMLInputElement>, timeUnit: string) {
         const isNumber = /^[0-9]$/i.test(e.key);
         let newInput;
 
@@ -57,12 +57,7 @@ function TimePicker(
         }
 
         setUserInput(newInput);
-
-        let hours = Number(newInput.slice(0, 2));
-        let minutes = Number(newInput.slice(2, 4));
-        let seconds = Number(newInput.slice(-2));
-
-        setDuration((hours * 60 * 60 + minutes * 60 + seconds) * 1000);
+        setDuration(convertClockTextToTime(newInput));
     }
 
     let clockText : string;
@@ -83,7 +78,7 @@ function TimePicker(
                 value={clockText.slice(0,2)}
                 className="text-black"
                 type="text"
-                onKeyDown={(e) => handleInput(e, "hours")}
+                onKeyDown={(e) => handleTimerInput(e, "hours")}
                 onFocus={() => {
                     clearInterval(intervalID);
                     setActive(false);
@@ -94,7 +89,7 @@ function TimePicker(
                 value={clockText.slice(2,4)}
                 className="text-black"
                 type="text"
-                onKeyDown={(e) => handleInput(e, "minutes")}
+                onKeyDown={(e) => handleTimerInput(e, "minutes")}
                 onFocus={() => {
                     clearInterval(intervalID);
                     setActive(false);
@@ -105,7 +100,7 @@ function TimePicker(
                 value={clockText.slice(4,6)}
                 className="text-black"
                 type="text"
-                onKeyDown={(e) => handleInput(e, "seconds")}
+                onKeyDown={(e) => handleTimerInput(e, "seconds")}
                 onFocus={() => {
                     clearInterval(intervalID);
                     setActive(false);
@@ -118,7 +113,7 @@ function TimePicker(
 
 function Timer() {
     const [duration, setDuration] = useState(0);
-    const [remainingTime, setRemaingingTime] = useState(0);
+    const [remainingTime, setRemainingTime] = useState(0);
     const [paused, setPaused] = useState(true);
     const [active, setActive] = useState(false);
     const [repetitions, setRepetitions] = useState(0);
@@ -128,6 +123,41 @@ function Timer() {
     const intervalID = useRef<NodeJS.Timer>();
     const repeatCounter = useRef(0);
 
+    useEffect(() => {
+        if (remainingTime < 0) {
+            repeatCounter.current = repeatCounter.current + 1;
+            console.log(`Timer completed ${repeatCounter.current} times`)
+
+            if (repetitions === 0) {
+                clearInterval(intervalID.current);
+                setRemainingTime(0);
+                console.log("Timer ended with no repetitions");
+    
+            } else if (repeatCounter.current === repetitions){
+                clearInterval(intervalID.current);
+                setRemainingTime(0);
+                console.log("Timer ended with " + repeatCounter.current + " repetitions");
+    
+            } else {
+                clearInterval(intervalID.current);
+    
+                startTime.current = Date.now();
+    
+                setRemainingTime(duration);
+    
+                const id = setInterval(() => {
+                    let newValue = startTime.current + duration - Date.now();
+                    setRemainingTime(newValue);
+                }, 10);
+    
+                intervalID.current = id;
+                setPaused(false);
+                setActive(true);
+                console.log("Repeating timer for the " + (repeatCounter.current) + "st/nd/th time");
+            }
+        }
+    }, [remainingTime])
+
     function startTimer() {
         if (intervalID.current !== undefined) {
             clearInterval(intervalID.current);
@@ -136,11 +166,11 @@ function Timer() {
         startTime.current = Date.now();
         repeatCounter.current = 0;
 
-        setRemaingingTime(duration);
+        setRemainingTime(duration);
 
         const id = setInterval(() => {
             let newValue = startTime.current + duration - Date.now();
-            setRemaingingTime(newValue);
+            setRemainingTime(newValue);
         }, 10);
 
         intervalID.current = id;
@@ -161,40 +191,12 @@ function Timer() {
 
             const id = setInterval(() => {
                 let newValue = startTime.current + duration - Date.now();
-                setRemaingingTime(newValue);
+                setRemainingTime(newValue);
             }, 10);
 
             intervalID.current = id;
             setPaused(false);
             setActive(true);
-        }
-    }
-
-    if (remainingTime <= 0 && active) {
-        repeatCounter.current = repeatCounter.current + 1;
-
-        if (repetitions === 0) {
-            clearInterval(intervalID.current);
-            console.log("Timer ended with no repetitions");
-        } else if (repetitions <= repeatCounter.current) {
-            clearInterval(intervalID.current);
-            console.log("Timer ended with " + repeatCounter.current + " repetitions");
-        } else {
-            clearInterval(intervalID.current);
-
-            startTime.current = Date.now();
-
-            setRemaingingTime(duration);
-
-            const id = setInterval(() => {
-                let newValue = startTime.current + duration - Date.now();
-                setRemaingingTime(newValue);
-            }, 10);
-
-            intervalID.current = id;
-            setPaused(false);
-            setActive(true);
-            console.log("Repeating timer for the " + (repeatCounter.current) + "st/nd/th time")
         }
     }
 
@@ -209,13 +211,11 @@ function Timer() {
                 active={active}
                 setActive={setActive}
             />
-            <button onClick={() => {
-                startTimer();
-            }}>{active ? "Restart" : "Start"}</button>
+            <button onClick={() => {startTimer()}}>{active ? "Restart" : "Start"}</button>
             <button onClick={togglePause}>{paused ? "Resume" : "Pause"}</button>
             {
                 repetitions === 0
-                    ? <button onClick={() => setRepetitions(1)}>Add Repetitions</button>
+                    ? <button onClick={() => setRepetitions(2)}>Add Repetitions</button>
                     : (
                         <div>
                             <input className="text-black" type="number" min="2" defaultValue={2} onChange={(e) => setRepetitions(Number(e.target.value))} />

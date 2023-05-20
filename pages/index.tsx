@@ -23,13 +23,13 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <>
       <Head>
         <title>TOTT</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <body>
+      <div>
         <h1 className='menu-title'>The One True Timer</h1>
         <div className='menu-bar'>
           <button
@@ -56,7 +56,7 @@ export default function Home() {
         <div className='content'>
           { pageComponent }
         </div>
-      </body>
-    </div>
+      </div>
+    </>
   )
 }
