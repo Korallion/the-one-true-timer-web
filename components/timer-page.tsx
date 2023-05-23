@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { convertSecondsToClockText, convertClockTextToTime } from "@/functions/timer";
+import { Howl } from 'howler';
 
 function TimePicker(
     { setDuration, remainingTime, intervalID, startTimer, active, setActive }:
@@ -75,6 +76,7 @@ function TimePicker(
     return (
         <div>
             <input
+                readOnly
                 value={clockText.slice(0, 2)}
                 className="text-black"
                 type="text"
@@ -86,6 +88,7 @@ function TimePicker(
             />
             <text>h</text>
             <input
+                readOnly
                 value={clockText.slice(2, 4)}
                 className="text-black"
                 type="text"
@@ -97,6 +100,7 @@ function TimePicker(
             />
             <text>m</text>
             <input
+                readOnly
                 value={clockText.slice(4, 6)}
                 className="text-black"
                 type="text"
@@ -111,12 +115,16 @@ function TimePicker(
     )
 }
 
-function Timer({id, deleteTimer} : {id : number, deleteTimer : (id : number) => void}) {
+function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => void }) {
     const [duration, setDuration] = useState(0);
     const [remainingTime, setRemainingTime] = useState(0);
     const [paused, setPaused] = useState(true);
     const [active, setActive] = useState(false);
     const [repetitions, setRepetitions] = useState(0);
+    
+    const sound = new Howl({
+        src: ["/alarm_2.mp3"],
+    });
 
     const startTime = useRef(0);
     const pausedTime = useRef(0);
@@ -131,11 +139,13 @@ function Timer({id, deleteTimer} : {id : number, deleteTimer : (id : number) => 
             if (repetitions === 0) {
                 clearInterval(intervalID.current);
                 setRemainingTime(0);
+                sound.play();
                 console.log("Timer ended with no repetitions");
 
             } else if (repeatCounter.current === repetitions) {
                 clearInterval(intervalID.current);
                 setRemainingTime(0);
+                sound.play();
                 console.log("Timer ended with " + repeatCounter.current + " repetitions");
 
             } else {
@@ -223,7 +233,7 @@ function Timer({id, deleteTimer} : {id : number, deleteTimer : (id : number) => 
                         </div>
                     )
             }
-            <button onClick={() => {deleteTimer(id)}}>Delete</button>
+            <button onClick={() => { deleteTimer(id) }}>Delete</button>
         </div>
     )
 }
@@ -244,7 +254,7 @@ export function TimerPage() {
     }
 
     function deleteTimer(id: number) {
-        const index = timerIds.findIndex((item : number) => item === id);
+        const index = timerIds.findIndex((item: number) => item === id);
         const newIds = [...timerIds];
 
         newIds.splice(index, 1);
@@ -253,12 +263,13 @@ export function TimerPage() {
 
     const timers = timerIds.map((id) => {
         return (
-        <Timer 
-            id={id}
-            key={id}
-            deleteTimer={deleteTimer}
-        />
-    )});
+            <Timer
+                id={id}
+                key={id}
+                deleteTimer={deleteTimer}
+            />
+        )
+    });
 
     return (
         <div>
