@@ -2,6 +2,10 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { convertSecondsToClockText, convertClockTextToTime } from "@/functions/timer";
 import { Howl } from 'howler';
 
+const sound = new Howl({
+    src: ["/alarm_2.mp3"],
+});
+
 function TimePicker(
     { setDuration, remainingTime, intervalID, startTimer, active, setActive }:
         {
@@ -122,9 +126,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
     const [active, setActive] = useState(false);
     const [repetitions, setRepetitions] = useState(0);
     
-    const sound = new Howl({
-        src: ["/alarm_2.mp3"],
-    });
+    
 
     const startTime = useRef(0);
     const pausedTime = useRef(0);
