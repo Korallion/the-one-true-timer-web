@@ -1,3 +1,6 @@
+import { Dispatch, MutableRefObject, SetStateAction } from "react";
+import { Howl } from 'howler';
+
 export function convertSecondsToClockText<String>(time: number) {
     time = Math.round((time) / 10) / 100;
 
@@ -18,4 +21,24 @@ export function convertClockTextToTime<Number>(text: string) {
     let seconds = Number(text.slice(-2));
 
     return (hours * 60 * 60 + minutes * 60 + seconds) * 1000;
+}
+
+export function endTimer(intervalID: NodeJS.Timer, setRemainingTime: Dispatch<SetStateAction<number>>, sound?: Howl) {
+    clearInterval(intervalID);
+    setRemainingTime(0);
+
+    if (sound) sound.play();
+
+    console.log("Timer finished");
+}
+
+export function startTimer(startTime: MutableRefObject<number>, duration: number, setRemainingTime: Dispatch<SetStateAction<number>>): NodeJS.Timer {
+    setRemainingTime(duration);
+
+    const intervalID = setInterval(() => {
+        let newValue = startTime.current + duration - Date.now();
+        setRemainingTime(newValue);
+    }, 10);
+
+    return intervalID;
 }

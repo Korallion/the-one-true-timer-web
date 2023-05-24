@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { convertSecondsToClockText, convertClockTextToTime } from "@/functions/timer";
+import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
+import { convertSecondsToClockText, convertClockTextToTime, startTimer, endTimer} from "@/functions/timer";
 import { Howl } from 'howler';
 
 const sound = new Howl({
@@ -122,47 +122,28 @@ function TimePicker(
 function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => void }) {
     const [duration, setDuration] = useState(0);
     const [remainingTime, setRemainingTime] = useState(0);
+    const [repetitions, setRepetitions] = useState(0);
     const [paused, setPaused] = useState(true);
     const [active, setActive] = useState(false);
-    const [repetitions, setRepetitions] = useState(0);
-    
-    
 
     const startTime = useRef(0);
-    const pausedTime = useRef(0);
     const intervalID = useRef<NodeJS.Timer>();
     const repeatCounter = useRef(0);
 
     useEffect(() => {
-        if (remainingTime < 0) {
+        if (remainingTime < 0 && intervalID.current) {
             repeatCounter.current = repeatCounter.current + 1;
-            console.log(`Timer completed ${repeatCounter.current} times`)
+            console.log(`Timer has run ${repeatCounter.current} repetition(s)`);
 
-            if (repetitions === 0) {
-                clearInterval(intervalID.current);
-                setRemainingTime(0);
-                sound.play();
-                console.log("Timer ended with no repetitions");
-
-            } else if (repeatCounter.current === repetitions) {
-                clearInterval(intervalID.current);
-                setRemainingTime(0);
-                sound.play();
-                console.log("Timer ended with " + repeatCounter.current + " repetitions");
+            if (repetitions === 0 || repeatCounter.current === repetitions) {
+                endTimer(intervalID.current, setRemainingTime, sound);
 
             } else {
                 clearInterval(intervalID.current);
-
+                
                 startTime.current = Date.now();
+                intervalID.current = startTimer(startTime, duration, setRemainingTime);
 
-                setRemainingTime(duration);
-
-                const id = setInterval(() => {
-                    let newValue = startTime.current + duration - Date.now();
-                    setRemainingTime(newValue);
-                }, 10);
-
-                intervalID.current = id;
                 setPaused(false);
                 setActive(true);
                 console.log("Repeating timer for the " + (repeatCounter.current) + "st/nd/th time");
@@ -170,45 +151,16 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
         }
     }, [remainingTime])
 
-    function startTimer() {
-        if (intervalID.current !== undefined) {
-            clearInterval(intervalID.current);
-        }
-
-        startTime.current = Date.now();
-        repeatCounter.current = 0;
-
-        setRemainingTime(duration);
-
-        const id = setInterval(() => {
-            let newValue = startTime.current + duration - Date.now();
-            setRemainingTime(newValue);
-        }, 10);
-
-        intervalID.current = id;
-        setPaused(false);
-        setActive(true);
-
-        console.log("Starting timer of " + duration + "milliseconds with " + repetitions + " repetitions");
-    }
-
     function togglePause() {
         if (!paused) {
-            pausedTime.current = Date.now();
             clearInterval(intervalID.current);
             setPaused(true);
 
         } else {
             startTime.current = Date.now() + remainingTime - duration;
+            intervalID.current = startTimer(startTime, duration, setRemainingTime);
 
-            const id = setInterval(() => {
-                let newValue = startTime.current + duration - Date.now();
-                setRemainingTime(newValue);
-            }, 10);
-
-            intervalID.current = id;
             setPaused(false);
-            setActive(true);
         }
     }
 
@@ -219,18 +171,47 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
                 setDuration={setDuration}
                 remainingTime={remainingTime}
                 intervalID={intervalID.current}
-                startTimer={startTimer}
+                startTimer={() => {
+                    if (intervalID.current) {
+                        clearInterval(intervalID.current);
+                    }
+            
+                    startTime.current = Date.now();
+                    repeatCounter.current = 0;
+            
+                    intervalID.current = startTimer(startTime, duration, setRemainingTime);
+                    setPaused(false);        
+                    setActive(true);
+            
+                    console.log("Starting timer of " + duration + "milliseconds with " + repetitions + " repetitions");
+                }}
                 active={active}
                 setActive={setActive}
             />
-            <button onClick={() => { startTimer() }}>{active ? "Restart" : "Start"}</button>
+
+            <button onClick={() => {
+                startTime.current = Date.now();
+                intervalID.current = startTimer(startTime, duration, setRemainingTime);
+                repeatCounter.current = 0;
+
+                setPaused(false);
+                setActive(true);
+            }}
+            >{active ? "Restart" : "Start"}</button>
+
             <button onClick={togglePause}>{paused ? "Resume" : "Pause"}</button>
             {
                 repetitions === 0
-                    ? <button onClick={() => setRepetitions(2)}>Add Repetitions</button>
+                    ?   <button onClick={() => setRepetitions(2)}>Add Repetitions</button>
                     : (
                         <div>
-                            <input className="text-black" type="number" min="2" defaultValue={2} onChange={(e) => setRepetitions(Number(e.target.value))} />
+                            <input 
+                                className="text-black" 
+                                type="number" 
+                                min="2" 
+                                defaultValue={2} 
+                                onChange={(e) => setRepetitions(Number(e.target.value))} 
+                            />
                             <button onClick={() => setRepetitions(0)}>Remove Repetitions</button>
                         </div>
                     )
