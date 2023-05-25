@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { convertSecondsToClockText, convertClockTextToTime, startTimer, endTimer, pauseTimer, resumeTimer} from "@/functions/timer";
+import { convertSecondsToClockText, convertClockTextToTime, startTimer, endTimer, pauseTimer, resumeTimer } from "@/functions/timer";
 import { Howl } from 'howler';
 
 const sound = new Howl({
@@ -119,12 +119,87 @@ function TimePicker(
     )
 }
 
+function IntervalTimePicker(
+    { duration, setDuration, }: { duration: number, setDuration: Function }) {
+
+    const [userInput, setUserInput] = useState("000000");
+
+    function handleTimerInput(e: React.KeyboardEvent<HTMLInputElement>, timeUnit: string) {
+        const isNumber = /^[0-9]$/i.test(e.key);
+        let newInput;
+
+        if (e.key === "Esc" || e.key === "Escape") {
+            setUserInput("000000");
+            return;
+        }
+
+        if (!isNumber && e.key !== "Backspace") {
+            e.stopPropagation();
+            return;
+        }
+
+        if (e.key === "Backspace") {
+            if (timeUnit === "hours")
+                newInput = '0' + userInput[0] + userInput.slice(2, 6);
+
+            else if (timeUnit === "minutes")
+                newInput = '0' + userInput.slice(0, 3) + userInput.slice(4, 6);
+
+            else
+                newInput = '0' + userInput.slice(0, 5);
+
+        } else {
+            if (timeUnit === "hours")
+                newInput = userInput.slice(1, 2) + e.key + userInput.slice(2, 6);
+
+            else if (timeUnit === "minutes")
+                newInput = userInput.slice(1, 4) + e.key + userInput.slice(4, 6);
+
+            else
+                newInput = userInput.slice(-5) + e.key;
+        }
+
+        setUserInput(newInput);
+        setDuration(convertClockTextToTime(newInput));
+    }
+
+    return (
+        <div>
+            <input
+                readOnly
+                value={userInput.slice(0, 2)}
+                className="text-black"
+                type="text"
+                onKeyDown={(e) => handleTimerInput(e, "hours")}
+            />
+            <text>h</text>
+            <input
+                readOnly
+                value={userInput.slice(2, 4)}
+                className="text-black"
+                type="text"
+                onKeyDown={(e) => handleTimerInput(e, "minutes")}
+            />
+            <text>m</text>
+            <input
+                readOnly
+                value={userInput.slice(4, 6)}
+                className="text-black"
+                type="text"
+                onKeyDown={(e) => handleTimerInput(e, "seconds")}
+            />
+            <text>s</text>
+        </div>
+    )
+}
+
 function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => void }) {
     const [duration, setDuration] = useState(0);
     const [remainingTime, setRemainingTime] = useState(0);
     const [repetitions, setRepetitions] = useState(0);
     const [paused, setPaused] = useState(true);
     const [active, setActive] = useState(false);
+    const [intervals, setIntervals] = useState([{ duration: 0, repetitions: 1 }]);
 
     const startTime = useRef(0);
     const intervalID = useRef<NodeJS.Timer>();
@@ -151,9 +226,40 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
         }
     }, [remainingTime])
 
+    const intervalTimer = intervals.map((item, index) => {
+        return (
+            <div key={index}>
+                <IntervalTimePicker
+                    duration={item.duration}
+                    setDuration={(newDuration: number) => {
+                        const newIntervals = intervals;
+                        newIntervals[index].duration = newDuration;
+                        setIntervals(newIntervals);
+                    }}
+                />
+                <button onClick={() => {
+                    let newIntervals = [...intervals];
+                    newIntervals.splice(index, 1);
+                    setIntervals(newIntervals);
+                }}>
+                    Delete Interval
+                </button>
+            </div>
+        )
+    })
+
     return (
         <div>
             <h1>{`Timer ${id}`}</h1>
+            <button onClick={() => {
+                const newIntervals = intervals.concat({ duration: 0, repetitions: 1 });
+                setIntervals(newIntervals);
+            }}>
+                Add Interval
+            </button>
+
+            {intervalTimer}
+
             <TimePicker
                 setDuration={setDuration}
                 remainingTime={remainingTime}
