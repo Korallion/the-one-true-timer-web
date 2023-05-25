@@ -42,3 +42,22 @@ export function startTimer(startTime: MutableRefObject<number>, duration: number
 
     return intervalID;
 }
+
+export function pauseTimer(intervalID: NodeJS.Timer, setPaused: Dispatch<SetStateAction<boolean>>) {
+    clearInterval(intervalID);
+    setPaused(true);
+}
+
+export function resumeTimer(
+    intervalID: MutableRefObject<NodeJS.Timer | undefined>,
+    duration: number,
+    startTime: MutableRefObject<number>,
+    remainingTime: number,
+    setRemainingTime: Dispatch<SetStateAction<number>>,
+    setPaused: Dispatch<SetStateAction<boolean>>) {
+
+    startTime.current = Date.now() + remainingTime - duration;
+    intervalID.current = startTimer(startTime, duration, setRemainingTime);
+
+    setPaused(false);
+}

@@ -1,5 +1,5 @@
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
-import { convertSecondsToClockText, convertClockTextToTime, startTimer, endTimer} from "@/functions/timer";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { convertSecondsToClockText, convertClockTextToTime, startTimer, endTimer, pauseTimer, resumeTimer} from "@/functions/timer";
 import { Howl } from 'howler';
 
 const sound = new Howl({
@@ -140,7 +140,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
 
             } else {
                 clearInterval(intervalID.current);
-                
+
                 startTime.current = Date.now();
                 intervalID.current = startTimer(startTime, duration, setRemainingTime);
 
@@ -150,19 +150,6 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
             }
         }
     }, [remainingTime])
-
-    function togglePause() {
-        if (!paused) {
-            clearInterval(intervalID.current);
-            setPaused(true);
-
-        } else {
-            startTime.current = Date.now() + remainingTime - duration;
-            intervalID.current = startTimer(startTime, duration, setRemainingTime);
-
-            setPaused(false);
-        }
-    }
 
     return (
         <div>
@@ -175,14 +162,14 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
                     if (intervalID.current) {
                         clearInterval(intervalID.current);
                     }
-            
+
                     startTime.current = Date.now();
                     repeatCounter.current = 0;
-            
+
                     intervalID.current = startTimer(startTime, duration, setRemainingTime);
-                    setPaused(false);        
+                    setPaused(false);
                     setActive(true);
-            
+
                     console.log("Starting timer of " + duration + "milliseconds with " + repetitions + " repetitions");
                 }}
                 active={active}
@@ -199,18 +186,30 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
             }}
             >{active ? "Restart" : "Start"}</button>
 
-            <button onClick={togglePause}>{paused ? "Resume" : "Pause"}</button>
+            <button
+                onClick={() => {
+                    if (intervalID.current) {
+                        if (paused) {
+                            resumeTimer(intervalID, duration, startTime, remainingTime, setRemainingTime, setPaused);
+                        } else {
+                            pauseTimer(intervalID.current, setPaused);
+                        }
+                    }
+
+                }}>
+                {paused ? "Resume" : "Pause"}
+            </button>
             {
                 repetitions === 0
-                    ?   <button onClick={() => setRepetitions(2)}>Add Repetitions</button>
+                    ? <button onClick={() => setRepetitions(2)}>Add Repetitions</button>
                     : (
                         <div>
-                            <input 
-                                className="text-black" 
-                                type="number" 
-                                min="2" 
-                                defaultValue={2} 
-                                onChange={(e) => setRepetitions(Number(e.target.value))} 
+                            <input
+                                className="text-black"
+                                type="number"
+                                min="2"
+                                defaultValue={2}
+                                onChange={(e) => setRepetitions(Number(e.target.value))}
                             />
                             <button onClick={() => setRepetitions(0)}>Remove Repetitions</button>
                         </div>
