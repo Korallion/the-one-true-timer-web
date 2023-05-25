@@ -28,8 +28,6 @@ export function endTimer(intervalID: NodeJS.Timer, setRemainingTime: Dispatch<Se
     setRemainingTime(0);
 
     if (sound) sound.play();
-
-    console.log("Timer finished");
 }
 
 export function startTimer(startTime: MutableRefObject<number>, duration: number, setRemainingTime: Dispatch<SetStateAction<number>>): NodeJS.Timer {
