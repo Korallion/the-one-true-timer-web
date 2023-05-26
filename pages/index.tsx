@@ -9,17 +9,17 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const [activeTab, setActiveTab] = useState('Stopwatches');
 
-  let pageComponent;
+  let pageIndex = 0;
 
   switch(activeTab){
     case "Stopwatches":
-      pageComponent = <StopwatchPage/>;
+      pageIndex = 0;
       break;
     case "Timers":
-      pageComponent = <TimerPage/>;
+      pageIndex = 1;
       break;
     default:
-      pageComponent = activeTab;
+      pageIndex = 0;
   }
 
   return (
@@ -54,7 +54,9 @@ export default function Home() {
         </div>
 
         <div className='content'>
-          { pageComponent }
+            <StopwatchPage className={"" + (pageIndex === 0 ? "" : " hidden")}/> 
+            <TimerPage className={"" + (pageIndex === 1 ? "" : " hidden")}/>
+          
         </div>
       </div>
     </>

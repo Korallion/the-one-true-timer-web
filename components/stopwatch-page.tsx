@@ -81,7 +81,7 @@ function Stopwatch({ id, deleteStopwatch }: { id: number, deleteStopwatch: (id: 
     )
 }
 
-export function StopwatchPage() {
+export function StopwatchPage({className}: {className: string}) {
     const [watchIds, setWatchIds] = useState([1]);
 
     function addStopwatch() {
@@ -114,9 +114,9 @@ export function StopwatchPage() {
     });
 
     return (
-        <>
+        <div className={className}>
             <button onClick={() => addStopwatch()}>Add Stopwatch</button>
             {stopwatches}
-        </>
+        </div>
     )
 }

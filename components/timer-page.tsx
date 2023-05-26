@@ -232,7 +232,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
     )
 }
 
-export function TimerPage() {
+export function TimerPage({className}: {className: string}) {
     const [timerIds, setTimerIds] = useState<Array<number>>([1]);
 
     function addTimer() {
@@ -266,7 +266,7 @@ export function TimerPage() {
     });
 
     return (
-        <div>
+        <div className={className}>
             <button onClick={addTimer}>Add Timer</button>
             {timers}
         </div>
