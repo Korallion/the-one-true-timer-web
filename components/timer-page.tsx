@@ -1,10 +1,15 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { convertSecondsToClockText, convertClockTextToTime, startTimer, endTimer, pauseTimer, resumeTimer } from "@/functions/timer";
-import { Howl } from 'howler';
+import { useEffect, useRef, useState } from "react";
+import {
+    convertSecondsToClockText,
+    convertClockTextToTime,
+    startTimer,
+    endTimer,
+    pauseTimer,
+    resumeTimer,
+    handleTimerInput
+} from "@/functions/timer";
 
-const sound = new Howl({
-    src: ["/alarm_2.mp3"],
-});
+import { Howl } from 'howler';
 
 const intervalRepeatSound = new Howl({
     src: ["/tott_interval_repeat.mp3"],
@@ -21,43 +26,6 @@ const timerRepeatSound = new Howl({
 const timerEndSound = new Howl({
     src: ["/tott_timer_end.mp3"],
 })
-
-function handleTimerInput(e: React.KeyboardEvent<HTMLInputElement>, timeUnit: string, oldInput: string) {
-    const isNumber = /^[0-9]$/i.test(e.key);
-    let newInput;
-
-    if (e.key === "Esc" || e.key === "Escape") {
-        return "000000";
-    }
-
-    if (!isNumber && e.key !== "Backspace") {
-        e.stopPropagation();
-        return oldInput;
-    }
-
-    if (e.key === "Backspace") {
-        if (timeUnit === "hours")
-            newInput = '0' + oldInput[0] + oldInput.slice(2, 6);
-
-        else if (timeUnit === "minutes")
-            newInput = '0' + oldInput.slice(0, 3) + oldInput.slice(4, 6);
-
-        else
-            newInput = '0' + oldInput.slice(0, 5);
-
-    } else {
-        if (timeUnit === "hours")
-            newInput = oldInput.slice(1, 2) + e.key + oldInput.slice(2, 6);
-
-        else if (timeUnit === "minutes")
-            newInput = oldInput.slice(1, 4) + e.key + oldInput.slice(4, 6);
-
-        else
-            newInput = oldInput.slice(-5) + e.key;
-    }
-
-    return newInput;
-}
 
 function TimePicker(
     { setDuration, }: { setDuration: Function }) {

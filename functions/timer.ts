@@ -59,3 +59,40 @@ export function resumeTimer(
 
     setPaused(false);
 }
+
+export function handleTimerInput(e: React.KeyboardEvent<HTMLInputElement>, timeUnit: string, oldInput: string) {
+    const isNumber = /^[0-9]$/i.test(e.key);
+    let newInput;
+
+    if (e.key === "Esc" || e.key === "Escape") {
+        return "000000";
+    }
+
+    if (!isNumber && e.key !== "Backspace") {
+        e.stopPropagation();
+        return oldInput;
+    }
+
+    if (e.key === "Backspace") {
+        if (timeUnit === "hours")
+            newInput = '0' + oldInput[0] + oldInput.slice(2, 6);
+
+        else if (timeUnit === "minutes")
+            newInput = '0' + oldInput.slice(0, 3) + oldInput.slice(4, 6);
+
+        else
+            newInput = '0' + oldInput.slice(0, 5);
+
+    } else {
+        if (timeUnit === "hours")
+            newInput = oldInput.slice(1, 2) + e.key + oldInput.slice(2, 6);
+
+        else if (timeUnit === "minutes")
+            newInput = oldInput.slice(1, 4) + e.key + oldInput.slice(4, 6);
+
+        else
+            newInput = oldInput.slice(-5) + e.key;
+    }
+
+    return newInput;
+}
