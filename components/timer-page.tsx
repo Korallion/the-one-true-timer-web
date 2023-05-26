@@ -230,7 +230,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
 
             <button
                 onClick={() => {
-                    if (intervalID.current) {
+                    if (intervalID.current && remainingTime !== 0) {
                         if (paused) {
                             const duration = intervals[currentInterval.current].duration;
 
