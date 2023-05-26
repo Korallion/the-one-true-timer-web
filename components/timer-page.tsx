@@ -6,6 +6,22 @@ const sound = new Howl({
     src: ["/alarm_2.mp3"],
 });
 
+const intervalRepeatSound = new Howl({
+    src: ["/tott_interval_repeat.mp3"],
+})
+
+const intervalEndSound = new Howl({
+    src: ["/tott_interval_end.mp3"],
+})
+
+const timerRepeatSound = new Howl({
+    src: ["/tott_timer_repeat.mp3"],
+})
+
+const timerEndSound = new Howl({
+    src: ["/tott_timer_end.mp3"],
+})
+
 function handleTimerInput(e: React.KeyboardEvent<HTMLInputElement>, timeUnit: string, oldInput: string) {
     const isNumber = /^[0-9]$/i.test(e.key);
     let newInput;
@@ -77,7 +93,7 @@ function TimePicker(
 
 function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => void }) {
     const [remainingTime, setRemainingTime] = useState(0);
-    const [repetitions, setRepetitions] = useState(0);
+    const [repetitions, setRepetitions] = useState(1);
     const [paused, setPaused] = useState(true);
     const [active, setActive] = useState(false);
     const [intervals, setIntervals] = useState([{ duration: 0, repetitions: 1 }]);
@@ -103,8 +119,8 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
 
                     if (allRepetitionsCompleted) {
                         console.log(`Timer finished`)
-                        endTimer(intervalID.current, setRemainingTime, sound);
-                        
+                        endTimer(intervalID.current, setRemainingTime, timerEndSound);
+
                     } else {
                         console.log(`Timer repeating`);
 
@@ -113,6 +129,8 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
                         intervalRepeatCounter.current = 0;
                         startTime.current = Date.now();
                         intervalID.current = startTimer(startTime, intervals[currentInterval.current].duration, setRemainingTime);
+
+                        timerRepeatSound.play();
                     }
                 } else {
                     const intervalDuration = intervals[currentInterval.current].duration;
@@ -124,6 +142,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
                     intervalRepeatCounter.current = 0;
                     startTime.current = Date.now();
                     intervalID.current = startTimer(startTime, intervals[currentInterval.current].duration, setRemainingTime);
+                    intervalEndSound.play();
                 }
             } else {
                 const intervalDuration = intervals[currentInterval.current].duration;
@@ -133,6 +152,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
 
                 startTime.current = Date.now();
                 intervalID.current = startTimer(startTime, intervals[currentInterval.current].duration, setRemainingTime);
+                intervalRepeatSound.play();
             }
         }
     }, [remainingTime]);
