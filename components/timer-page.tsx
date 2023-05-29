@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { deleteIdFromArray, addIdToArray } from "@/functions/general";
 import {
     convertSecondsToClockText,
     convertClockTextToTime,
@@ -235,39 +236,19 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
 export function TimerPage({className}: {className: string}) {
     const [timerIds, setTimerIds] = useState<Array<number>>([1]);
 
-    function addTimer() {
-        if (timerIds.length) {
-            const newId = timerIds[timerIds.length - 1] + 1;
-            const newTimerSet = [...timerIds, newId];
-
-            setTimerIds(newTimerSet);
-
-        } else {
-            setTimerIds([1]);
-        }
-    }
-
-    function deleteTimer(id: number) {
-        const index = timerIds.findIndex((item: number) => item === id);
-        const newIds = [...timerIds];
-
-        newIds.splice(index, 1);
-        setTimerIds(newIds);
-    }
-
     const timers = timerIds.map((id) => {
         return (
             <Timer
                 id={id}
                 key={id}
-                deleteTimer={deleteTimer}
+                deleteTimer={(id) => setTimerIds(deleteIdFromArray(id, timerIds))}
             />
         )
     });
 
     return (
         <div className={className}>
-            <button onClick={addTimer}>Add Timer</button>
+            <button onClick={() => setTimerIds(addIdToArray(timerIds))}>Add Timer</button>
             {timers}
         </div>
     )

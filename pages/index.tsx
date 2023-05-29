@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import { StopwatchPage } from '@/components/stopwatch-page';
 import { TimerPage } from '@/components/timer-page';
+import { ClockPage } from '@/components/clock-page';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -11,12 +12,18 @@ export default function Home() {
 
   let pageIndex = 0;
 
-  switch(activeTab){
+  switch (activeTab) {
     case "Stopwatches":
       pageIndex = 0;
       break;
     case "Timers":
       pageIndex = 1;
+      break;
+    case "Alarms":
+      pageIndex = 2;
+      break;
+    case "Clocks":
+      pageIndex = 3;
       break;
     default:
       pageIndex = 0;
@@ -34,29 +41,30 @@ export default function Home() {
         <div className='menu-bar'>
           <button
             className='menu-button'
-            onClick={() => setActiveTab("Stopwatches") }
+            onClick={() => setActiveTab("Stopwatches")}
           >Stopwatches</button>
 
           <button
             className='menu-button'
-            onClick={() => setActiveTab("Timers") }
+            onClick={() => setActiveTab("Timers")}
           >Timers</button>
 
           <button
             className='menu-button'
-            onClick={() => setActiveTab("Alarms") }
+            onClick={() => setActiveTab("Alarms")}
           >Alarms</button>
 
           <button
             className='menu-button'
-            onClick={() => setActiveTab("Clocks") }
+            onClick={() => setActiveTab("Clocks")}
           >Clocks</button>
         </div>
 
         <div className='content'>
-            <StopwatchPage className={"" + (pageIndex === 0 ? "" : " hidden")}/> 
-            <TimerPage className={"" + (pageIndex === 1 ? "" : " hidden")}/>
-          
+          <StopwatchPage className={"" + (pageIndex === 0 ? "" : " hidden")} />
+          <TimerPage className={"" + (pageIndex === 1 ? "" : " hidden")} />
+          <ClockPage className={"" + (pageIndex === 3 ? "" : " hidden")} />
+
         </div>
       </div>
     </>
