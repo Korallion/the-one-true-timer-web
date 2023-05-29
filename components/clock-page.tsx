@@ -1,11 +1,29 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { deleteIdFromArray, addIdToArray } from "@/functions/general";
 
-
 export function Clock({id, deleteClock}: {id: number, deleteClock: (id: number) => void}) {
+    const [today, setToday] = useState<Date>(new Date());
+
+    const timeZone = useRef(0);
+
+    setInterval(() => {
+        setToday(new Date() );
+    }, 10);
+
+    const date = today.toDateString();
+    const timeString = today.toLocaleTimeString();
+
     return (
         <div>
             {`Clock ${id}`}
+            {`The date is ${date} and the time is ${timeString}`}
+            <input 
+                className="bg-black border-white" 
+                type="number" 
+                min={-12}  
+                max={14} 
+                defaultValue={0}
+                onChange={(e) => {timeZone.current = Number(e.target.value)}}/>
             <button onClick={() => deleteClock(id)}>Delete</button>
         </div>
     )
