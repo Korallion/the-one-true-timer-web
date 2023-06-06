@@ -19,7 +19,7 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
             const currentDate = new Date(Date.now() + timeZone.current * 60 * 60 * 1000);
             setTime(currentDate.toLocaleTimeString());
             setDate(currentDate.toDateString());
-        }, 1000)
+        }, 50)
     }, []);
 
     return (
