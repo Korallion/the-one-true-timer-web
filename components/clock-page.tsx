@@ -1,22 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { deleteIdFromArray, addIdToArray } from "@/functions/general";
 
 export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: number) => void }) {
     const [date, setDate] = useState<string>();
     const [time, setTime] = useState<string>();
-    const [timeZone, setTimeZone] = useState(0);
+    const timeZone = useRef(0);
 
     useEffect(() => {
         const currentTime = Date.now()
-        const timeZoneAddition = timeZone * 60 * 60 * 1000;
-        const currentDate = new Date(Date.now() + timeZone * 60 * 60 * 1000);
+        const timeZoneAddition = timeZone.current * 60 * 60 * 1000;
+        const currentDate = new Date(Date.now() + timeZone.current * 60 * 60 * 1000);
         setTime(currentDate.toLocaleTimeString());
         setDate(currentDate.toDateString());
 
         setInterval(() => {
             const currentTime = Date.now()
-            const timeZoneAddition = timeZone * 60 * 60 * 1000;
-            const currentDate = new Date(Date.now() + timeZone * 60 * 60 * 1000);
+            const timeZoneAddition = timeZone.current * 60 * 60 * 1000;
+            const currentDate = new Date(Date.now() + timeZone.current * 60 * 60 * 1000);
             setTime(currentDate.toLocaleTimeString());
             setDate(currentDate.toDateString());
         }, 1000)
@@ -32,7 +32,7 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
                 min={-12}
                 max={14}
                 defaultValue={0}
-                onChange={(e) => { setTimeZone(Number(e.target.value)) }}
+                onChange={(e) => { timeZone.current = Number(e.target.value) }}
             />
             <button onClick={() => deleteClock(id)}>Delete</button>
         </div>
