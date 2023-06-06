@@ -2,28 +2,27 @@ import { useState, useRef } from "react";
 import { deleteIdFromArray, addIdToArray } from "@/functions/general";
 
 export function Clock({id, deleteClock}: {id: number, deleteClock: (id: number) => void}) {
-    const [today, setToday] = useState<Date>(new Date());
-
-    const timeZone = useRef(0);
+    const [date, setDate] = useState<string>();
+    const [time, setTime] = useState<string>();
+    const [timeZone, setTimeZone] = useState(0);
 
     setInterval(() => {
-        setToday(new Date() );
+        const currentTime = new Date();
+        setTime(currentTime.toLocaleTimeString());
+        setDate(currentTime.toDateString());
     }, 10);
-
-    const date = today.toDateString();
-    const timeString = today.toLocaleTimeString();
 
     return (
         <div>
             {`Clock ${id}`}
-            {`The date is ${date} and the time is ${timeString}`}
+            {`The date is ${date} and the time is ${time}`}
             <input 
                 className="bg-black border-white" 
                 type="number" 
                 min={-12}  
                 max={14} 
                 defaultValue={0}
-                onChange={(e) => {timeZone.current = Number(e.target.value)}}/>
+                onChange={(e) => {setTimeZone(Number(e.target.value))}}/>
             <button onClick={() => deleteClock(id)}>Delete</button>
         </div>
     )
