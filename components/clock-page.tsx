@@ -1,39 +1,43 @@
 import { useState, useRef, useEffect } from "react";
 import { deleteIdFromArray, addIdToArray } from "@/functions/general";
+import { timeZones } from "@/public/data/timezones";
 
 export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: number) => void }) {
     const [date, setDate] = useState<string>();
     const [time, setTime] = useState<string>();
-    const timeZone = useRef(0);
+    const textTimeZone = useRef(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
     useEffect(() => {
-        const currentTime = Date.now()
-        const timeZoneAddition = timeZone.current * 60 * 60 * 1000;
-        const currentDate = new Date(Date.now() + timeZone.current * 60 * 60 * 1000);
-        setTime(currentDate.toLocaleTimeString());
-        setDate(currentDate.toDateString());
+
+        const currentTime = new Date( new Date().toLocaleString("en-UK", {timeZone: textTimeZone.current}));
+        setTime(currentTime.toLocaleTimeString());
+        setDate(currentTime.toDateString());
 
         setInterval(() => {
-            const currentTime = Date.now()
-            const timeZoneAddition = timeZone.current * 60 * 60 * 1000;
-            const currentDate = new Date(Date.now() + timeZone.current * 60 * 60 * 1000);
-            setTime(currentDate.toLocaleTimeString());
-            setDate(currentDate.toDateString());
-        }, 50)
+            const currentTime = new Date( new Date().toLocaleString("en-UK", {timeZone: textTimeZone.current}));
+            setTime(currentTime.toLocaleTimeString());
+            setDate(currentTime.toDateString());
+
+        }, 50);
     }, []);
+
+    const timeZoneSelect = timeZones.map((value) => {
+        return (
+            <option value={value} >{value}</option>
+        )
+    })
 
     return (
         <div>
             {`Clock ${id}`}
             {`The date is ${date} and the time is ${time}`}
-            <input
-                className="bg-black border-white"
-                type="number"
-                min={-12}
-                max={14}
-                defaultValue={0}
-                onChange={(e) => { timeZone.current = Number(e.target.value) }}
-            />
+            <select 
+                className="bg-black" 
+                defaultValue={textTimeZone.current}
+                onChange={(e) => {textTimeZone.current = e.target.value}}
+            >
+                {timeZoneSelect}
+            </select>
             <button onClick={() => deleteClock(id)}>Delete</button>
         </div>
     )
