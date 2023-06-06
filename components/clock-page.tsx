@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { deleteIdFromArray, addIdToArray } from "@/functions/general";
 
 export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: number) => void }) {
@@ -7,6 +7,12 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
     const [timeZone, setTimeZone] = useState(0);
 
     useEffect(() => {
+        const currentTime = Date.now()
+        const timeZoneAddition = timeZone * 60 * 60 * 1000;
+        const currentDate = new Date(Date.now() + timeZone * 60 * 60 * 1000);
+        setTime(currentDate.toLocaleTimeString());
+        setDate(currentDate.toDateString());
+
         setInterval(() => {
             const currentTime = Date.now()
             const timeZoneAddition = timeZone * 60 * 60 * 1000;
