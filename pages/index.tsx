@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import { StopwatchPage } from '@/components/stopwatch-page';
 import { TimerPage } from '@/components/timer-page';
+import { AlarmPage } from '@/components/alarm-page';
 import { ClockPage } from '@/components/clock-page';
 
 const inter = Inter({ subsets: ['latin'] })
@@ -63,8 +64,8 @@ export default function Home() {
         <div className='content'>
           <StopwatchPage className={"" + (pageIndex === 0 ? "" : " hidden")} />
           <TimerPage className={"" + (pageIndex === 1 ? "" : " hidden")} />
+          <AlarmPage className={"" + (pageIndex === 2 ? "" : " hidden")} />
           <ClockPage className={"" + (pageIndex === 3 ? "" : " hidden")} />
-
         </div>
       </div>
     </>
