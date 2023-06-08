@@ -9,12 +9,12 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
 
     useEffect(() => {
 
-        const currentTime = new Date( new Date().toLocaleString("en-UK", {timeZone: textTimeZone.current}));
+        const currentTime = new Date( new Date().toLocaleString("en-US", {timeZone: textTimeZone.current}));
         setTime(currentTime.toLocaleTimeString());
         setDate(currentTime.toDateString());
 
         setInterval(() => {
-            const currentTime = new Date( new Date().toLocaleString("en-UK", {timeZone: textTimeZone.current}));
+            const currentTime = new Date( new Date().toLocaleString("en-US", {timeZone: textTimeZone.current}));
             setTime(currentTime.toLocaleTimeString());
             setDate(currentTime.toDateString());
 
