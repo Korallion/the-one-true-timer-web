@@ -1,12 +1,42 @@
-import { useState, useRef, useEffect } from "react";
-import { deleteIdFromArray, addIdToArray } from "@/functions/general";
+import { useState, useRef } from "react";
+import { deleteIdFromArray, addIdToArray, convertMillisecondsToClockText } from "@/functions/general";
+import { TimePicker } from "./common-components";
 
 function Alarm({id, deleteAlarm}: {id: number, deleteAlarm: () => void}) {
+    const [endTime, setEndTime] = useState<number>(0);
+    const [remainingTime, setRemainingTime] = useState(0);
+    const [active, setActive] = useState(false);
+
+    const intervalID = useRef<NodeJS.Timer>();
+
     return (
         <div>
             {`Alarm ${id}`}
-            <button onClick={deleteAlarm}>Delete</button>
+            <TimePicker 
+                setTime={(input: number) => {
+                    const today = new Date();
+                    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    setEndTime(input + todayStart.getTime());
+                }}
+            />
+            {`Time until alarm: ${convertMillisecondsToClockText(remainingTime)}`}
+            <button onClick={() => {
+                if (!active) {
+                    intervalID.current = setInterval(() => {
+                        const now = new Date().getTime();
 
+                        setRemainingTime(endTime - now);
+                    }, 50);
+
+                } else {
+                    clearInterval(intervalID.current);
+                    setRemainingTime(0);
+                }
+
+                setActive(!active);
+            }} 
+            >{active ? "Deactivate": "Activate"}</button>
+            <button onClick={deleteAlarm}>Delete</button>
         </div>
     )
 }
