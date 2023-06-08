@@ -9,12 +9,12 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
 
     useEffect(() => {
 
-        const currentTime = new Date( new Date().toLocaleString("en-US", {timeZone: textTimeZone.current}));
+        const currentTime = new Date(new Date().toLocaleString("en-US", { timeZone: textTimeZone.current }));
         setTime(currentTime.toLocaleTimeString());
         setDate(currentTime.toDateString());
 
         setInterval(() => {
-            const currentTime = new Date( new Date().toLocaleString("en-US", {timeZone: textTimeZone.current}));
+            const currentTime = new Date(new Date().toLocaleString("en-US", { timeZone: textTimeZone.current }));
             setTime(currentTime.toLocaleTimeString());
             setDate(currentTime.toDateString());
 
@@ -23,7 +23,7 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
 
     const timeZoneSelect = timeZones.map((value) => {
         return (
-            <option value={value} >{value}</option>
+            <option key={value} value={value} >{value}</option>
         )
     })
 
@@ -31,10 +31,10 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
         <div>
             {`Clock ${id}`}
             {`The date is ${date} and the time is ${time}`}
-            <select 
-                className="bg-black" 
+            <select
+                className="bg-black"
                 defaultValue={textTimeZone.current}
-                onChange={(e) => {textTimeZone.current = e.target.value}}
+                onChange={(e) => { textTimeZone.current = e.target.value }}
             >
                 {timeZoneSelect}
             </select>
@@ -44,17 +44,15 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
 }
 
 export function ClockPage({ className }: { className: string }) {
-    const [clocks, setClocks] = useState([0]);
+    const [clocks, setClocks] = useState([1]);
 
     const clockComponents = clocks.map((id) => {
         return (
-            <div>
-                <Clock
-                    id={id}
-                    key={id}
-                    deleteClock={(id) => setClocks(deleteIdFromArray(id, clocks))}
-                />
-            </div>
+            <Clock
+                id={id}
+                key={id}
+                deleteClock={(id) => setClocks(deleteIdFromArray(id, clocks))}
+            />
         )
     });
 
