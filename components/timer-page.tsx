@@ -60,7 +60,7 @@ function TimePicker(
     )
 }
 
-function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => void }) {
+function Timer({ id, deleteTimer }: { id: number, deleteTimer: () => void }) {
     const [remainingTime, setRemainingTime] = useState(0);
     const [repetitions, setRepetitions] = useState(1);
     const [paused, setPaused] = useState(true);
@@ -228,7 +228,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
                         </div>
                     )
             }
-            <button onClick={() => { deleteTimer(id) }}>Delete</button>
+            <button onClick={deleteTimer}>Delete</button>
         </div>
     )
 }
@@ -241,7 +241,7 @@ export function TimerPage({className}: {className: string}) {
             <Timer
                 id={id}
                 key={id}
-                deleteTimer={(id) => setTimerIds(deleteIdFromArray(id, timerIds))}
+                deleteTimer={() => setTimerIds(deleteIdFromArray(id, timerIds))}
             />
         )
     });

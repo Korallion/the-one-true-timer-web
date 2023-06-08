@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { deleteIdFromArray, addIdToArray } from "@/functions/general";
 import { timeZones } from "@/public/data/timezones";
 
-export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: number) => void }) {
+export function Clock({ id, deleteClock }: { id: number, deleteClock: () => void }) {
     const [date, setDate] = useState<string>();
     const [time, setTime] = useState<string>();
     const textTimeZone = useRef(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -38,7 +38,7 @@ export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: numbe
             >
                 {timeZoneSelect}
             </select>
-            <button onClick={() => deleteClock(id)}>Delete</button>
+            <button onClick={deleteClock}>Delete</button>
         </div>
     )
 }
@@ -51,7 +51,7 @@ export function ClockPage({ className }: { className: string }) {
             <Clock
                 id={id}
                 key={id}
-                deleteClock={(id) => setClocks(deleteIdFromArray(id, clocks))}
+                deleteClock={() => setClocks(deleteIdFromArray(id, clocks))}
             />
         )
     });
