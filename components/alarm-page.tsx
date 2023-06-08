@@ -2,6 +2,12 @@ import { useState, useRef } from "react";
 import { deleteIdFromArray, addIdToArray, convertMillisecondsToClockText } from "@/functions/general";
 import { TimePicker } from "./common-components";
 
+import { Howl } from 'howler';
+
+const alarmSound = new Howl({
+    src: ["/tott_timer_end.mp3"],
+})
+
 function Alarm({id, deleteAlarm}: {id: number, deleteAlarm: () => void}) {
     const [endTime, setEndTime] = useState<number>(0);
     const [remainingTime, setRemainingTime] = useState(0);
@@ -22,10 +28,20 @@ function Alarm({id, deleteAlarm}: {id: number, deleteAlarm: () => void}) {
             {`Time until alarm: ${convertMillisecondsToClockText(remainingTime)}`}
             <button onClick={() => {
                 if (!active) {
+                    setRemainingTime(endTime - new Date().getTime());
+
                     intervalID.current = setInterval(() => {
                         const now = new Date().getTime();
 
-                        setRemainingTime(endTime - now);
+                        if (endTime - now <= 0) {
+                            alarmSound.play();
+
+                            setRemainingTime(0);
+                            clearInterval(intervalID.current);
+                        } else {
+                            setRemainingTime(endTime - now);
+                        }
+
                     }, 50);
 
                 } else {
