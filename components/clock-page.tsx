@@ -1,53 +1,58 @@
 import { useState, useRef, useEffect } from "react";
 import { deleteIdFromArray, addIdToArray } from "@/functions/general";
+import { timeZones } from "@/public/data/timezones";
 
-export function Clock({id, deleteClock}: {id: number, deleteClock: (id: number) => void}) {
-    const [today, setToday] = useState(new Date());
-
-    const timeZone = useRef(0);
-    const intervalID = useRef<NodeJS.Timer>();
+export function Clock({ id, deleteClock }: { id: number, deleteClock: (id: number) => void }) {
+    const [date, setDate] = useState<string>();
+    const [time, setTime] = useState<string>();
+    const textTimeZone = useRef(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
     useEffect(() => {
-        intervalID.current = setInterval(() => {
-            const newDate = new Date(today.getTime() + timeZone.current * 60 * 60 * 1000);
-            console.log(newDate.toLocaleDateString());
-            setToday(newDate);
-        }, 10);
-    },[]);
+
+        const currentTime = new Date(new Date().toLocaleString("en-US", { timeZone: textTimeZone.current }));
+        setTime(currentTime.toLocaleTimeString());
+        setDate(currentTime.toDateString());
+
+        setInterval(() => {
+            const currentTime = new Date(new Date().toLocaleString("en-US", { timeZone: textTimeZone.current }));
+            setTime(currentTime.toLocaleTimeString());
+            setDate(currentTime.toDateString());
+
+        }, 50);
+    }, []);
+
+    const timeZoneSelect = timeZones.map((value) => {
+        return (
+            <option key={value} value={value} >{value}</option>
+        )
+    })
 
     return (
         <div>
             {`Clock ${id}`}
-            {`The date is ${today.toDateString()} and the time is ${today.toLocaleTimeString()}`}
-            <input 
-                className="bg-black border-white" 
-                type="number" 
-                min={-12}  
-                max={14} 
-                defaultValue={0}
-                onChange={(e) => {timeZone.current = Number(e.target.value)}}/>
-            <button 
-                onClick={() => {
-                    clearInterval(intervalID.current);
-                    deleteClock(id);
-                }
-                }>Delete</button>
+            {`The date is ${date} and the time is ${time}`}
+            <select
+                className="bg-black"
+                defaultValue={textTimeZone.current}
+                onChange={(e) => { textTimeZone.current = e.target.value }}
+            >
+                {timeZoneSelect}
+            </select>
+            <button onClick={() => deleteClock(id)}>Delete</button>
         </div>
     )
 }
 
-export function ClockPage({className}: {className: string}) {
-    const [clocks, setClocks] = useState([0]);
+export function ClockPage({ className }: { className: string }) {
+    const [clocks, setClocks] = useState([1]);
 
     const clockComponents = clocks.map((id) => {
         return (
-            <div>
-                <Clock
-                    id={id}
-                    key={id}
-                    deleteClock={(id) => setClocks(deleteIdFromArray(id, clocks))}
-                />
-            </div>
+            <Clock
+                id={id}
+                key={id}
+                deleteClock={(id) => setClocks(deleteIdFromArray(id, clocks))}
+            />
         )
     });
 
