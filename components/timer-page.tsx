@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { deleteIdFromArray, addIdToArray } from "@/functions/general";
+import { TimePicker } from "./common-components";
+import { deleteIdFromArray, addIdToArray, convertMillisecondsToClockText } from "@/functions/general";
 import {
-    convertSecondsToClockText,
-    convertClockTextToTime,
     startTimer,
     endTimer,
     pauseTimer,
     resumeTimer,
-    handleTimerInput
 } from "@/functions/timer";
 
 import { Howl } from 'howler';
@@ -28,39 +26,7 @@ const timerEndSound = new Howl({
     src: ["/tott_timer_end.mp3"],
 })
 
-function TimePicker(
-    { setDuration, }: { setDuration: Function }) {
-
-    const [userInput, setUserInput] = useState("000000");
-
-    const timerInputs = ["hours", "minutes", "seconds"].map((value, index) => {
-        return (
-            <div key={index} className="inline">
-                <input
-                    readOnly
-                    value={userInput.slice(index * 2, index * 2 + 2)}
-                    className="text-black"
-                    type="text"
-                    onKeyDown={(e) => {
-                        let newInput = handleTimerInput(e, value, userInput);
-                        setUserInput(newInput);
-                        setDuration(convertClockTextToTime(newInput));
-                    }}
-                />
-                <text>{value[0]}</text>
-            </div>
-
-        )
-    })
-
-    return (
-        <div>
-            {timerInputs}
-        </div>
-    )
-}
-
-function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => void }) {
+function Timer({ id, deleteTimer }: { id: number, deleteTimer: () => void }) {
     const [remainingTime, setRemainingTime] = useState(0);
     const [repetitions, setRepetitions] = useState(1);
     const [paused, setPaused] = useState(true);
@@ -130,7 +96,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
         return (
             <div key={index}>
                 <TimePicker
-                    setDuration={(newDuration: number) => {
+                    setTime={(newDuration: number) => {
                         const newIntervals = intervals;
                         newIntervals[index].duration = newDuration;
                         setIntervals(newIntervals);
@@ -157,7 +123,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
         )
     });
 
-    const displayTime = convertSecondsToClockText(remainingTime);
+    const displayTime = convertMillisecondsToClockText(remainingTime);
 
     const hours = displayTime.slice(0, 2);
     const minutes = displayTime.slice(2, 4);
@@ -228,7 +194,7 @@ function Timer({ id, deleteTimer }: { id: number, deleteTimer: (id: number) => v
                         </div>
                     )
             }
-            <button onClick={() => { deleteTimer(id) }}>Delete</button>
+            <button onClick={deleteTimer}>Delete</button>
         </div>
     )
 }
@@ -241,7 +207,7 @@ export function TimerPage({className}: {className: string}) {
             <Timer
                 id={id}
                 key={id}
-                deleteTimer={(id) => setTimerIds(deleteIdFromArray(id, timerIds))}
+                deleteTimer={() => setTimerIds(deleteIdFromArray(id, timerIds))}
             />
         )
     });

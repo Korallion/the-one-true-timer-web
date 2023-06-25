@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { deleteIdFromArray, addIdToArray } from "@/functions/general";
 
-function Stopwatch({ id, deleteStopwatch }: { id: number, deleteStopwatch: (id: number) => void }) {
+function Stopwatch({ id, deleteStopwatch }: { id: number, deleteStopwatch: () => void }) {
     const [startTime, setStartTime] = useState(0);
     const [now, setNow] = useState(0);
     const [paused, setPaused] = useState(false);
@@ -71,7 +71,7 @@ function Stopwatch({ id, deleteStopwatch }: { id: number, deleteStopwatch: (id: 
                 onClick={() => pauseStopwatch()}
             >{paused ? "Resume" : "Pause"}</button>
             <button
-                onClick={() => { deleteStopwatch(id) }}
+                onClick={() => { deleteStopwatch() }}
             >Delete</button>
             <button
                 onClick={() => { addLap(displayTime) }}>Lap</button>
@@ -90,7 +90,7 @@ export function StopwatchPage({className}: {className: string}) {
             <Stopwatch
                 id={id}
                 key={id}
-                deleteStopwatch={(id) => setWatchIds(deleteIdFromArray(id, watchIds))}
+                deleteStopwatch={() => setWatchIds(deleteIdFromArray(id, watchIds))}
             />
         )
     });
