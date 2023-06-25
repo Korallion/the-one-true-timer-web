@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.menu-bar {
+    @apply w-auto;
+    @apply bg-indigo-950;
+    @apply border-b-8 border-gray-900;
+}
+
+.menu-title {
+    @apply w-full mx-auto py-[2%] md:py-[0.8%] text-xl;
+    @apply text-center;
+}
+
+.navigation-container {
+    @apply w-auto m-auto pb-[3%] md:pb-[1%];
+    @apply text-center;
+}
+
+.menu-button {
+    @apply w-auto mx-[1%] p-[1.5%] hover:p-[2.5%];
+    @apply md:p-[0.5%] md:hover:p-[1%];
+    @apply border rounded-lg;
+    @apply bg-indigo-900 hover:bg-blue-800 focus:bg-green-800;
+    @apply transition-all duration-500;
+}
+
+.menu-button-selected {
+    @apply w-auto mx-[1%] p-[2.5%];
+    @apply md:p-[1%];
+    @apply border rounded-lg;
+    @apply bg-green-800;
+    @apply transition-all duration-500;
+}
