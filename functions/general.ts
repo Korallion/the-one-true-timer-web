@@ -39,6 +39,20 @@ export function convertMillisecondsToClockText<String>(time: number) {
     return hoursText + minutesText + secondsText;
 }
 
+export function convertMillisecondsToClockTextWithLetters<String>(time: number) {
+    time = Math.round((time) / 10) / 100;
+
+    let hours = Math.floor(time / 3600);
+    let minutes = Math.floor(time % 3600 / 60);
+    let seconds = Math.ceil(time % 60);
+
+    let hoursText = String(hours).padStart(2, '0');
+    let minutesText = String(minutes).padStart(2, '0');
+    let secondsText = String(seconds).padStart(2, '0');
+
+    return hoursText + 'h' + minutesText + 'm' + secondsText + 's';
+}
+
 export function handleTimeInput(e: React.KeyboardEvent<HTMLInputElement>, timeUnit: string, oldInput: string) {
     const isNumber = /^[0-9]$/i.test(e.key);
     let newInput;
