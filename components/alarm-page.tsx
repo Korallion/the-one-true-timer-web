@@ -4,77 +4,85 @@ import { TimePicker } from "./common-components";
 
 import { Howl } from 'howler';
 
+// What is still needed?
+// - repeat alarm / choice of days
+// - "tomorrow" alarm
+// - snooze function
+// - if time is set for before "current" time, set for tomorrow
+
 const alarmSound = new Howl({
     src: ["/tott_timer_end.mp3"],
 })
 
-function Alarm({id, deleteAlarm}: {id: number, deleteAlarm: () => void}) {
-    const [endTime, setEndTime] = useState<number>(0);
+function Alarm({ id, deleteAlarm }: { id: number, deleteAlarm: () => void }) {
+    const [endTime, setEndTime] = useState(0);
     const [remainingTime, setRemainingTime] = useState(0);
-    const [active, setActive] = useState(false);
+    const [isActive, setIsActive] = useState(false);
 
     const intervalID = useRef<NodeJS.Timer>();
+    const buttonText = isActive ? "Deactivate" : "Activate"
+
+    function activateAlarm() {
+        intervalID.current = setInterval(() => {
+            const now = new Date().getTime();
+
+            if (endTime - now <= 0) {
+                alarmSound.play();
+                setRemainingTime(0);
+                clearInterval(intervalID.current);
+            } else {
+                setRemainingTime(endTime - now);
+            }
+
+        }, 50);
+        setIsActive(true)
+    }
+
+    function deactivateAlarm() {
+        clearInterval(intervalID.current);
+        setRemainingTime(0);
+        setIsActive(false)
+    }
+
+    function toggleAlarmActivation() {
+        if (isActive) {
+            deactivateAlarm()
+        } else {
+            activateAlarm()
+        }
+    }
 
     return (
         <div>
             {`Alarm ${id}`}
-            <TimePicker 
+            <TimePicker
                 setTime={(input: number) => {
                     const today = new Date();
-                    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                    setEndTime(input + todayStart.getTime());
+                    const beginningOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    setEndTime(input + beginningOfDay.getTime());
                 }}
             />
             {`Time until alarm: ${convertMillisecondsToClockText(remainingTime)}`}
-            <button onClick={() => {
-                if (!active) {
-                    setRemainingTime(endTime - new Date().getTime());
-
-                    intervalID.current = setInterval(() => {
-                        const now = new Date().getTime();
-
-                        if (endTime - now <= 0) {
-                            alarmSound.play();
-
-                            setRemainingTime(0);
-                            clearInterval(intervalID.current);
-                        } else {
-                            setRemainingTime(endTime - now);
-                        }
-
-                    }, 50);
-
-                } else {
-                    clearInterval(intervalID.current);
-                    setRemainingTime(0);
-                }
-
-                setActive(!active);
-            }} 
-            >{active ? "Deactivate": "Activate"}</button>
+            <button onClick={toggleAlarmActivation}>{buttonText}</button>
             <button onClick={deleteAlarm}>Delete</button>
-        </div>
+        </div >
     )
 }
 
-export function AlarmPage({className}: {className: string}) {
+export function AlarmPage({ className }: { className: string }) {
     const [alarmIds, setAlarmIds] = useState([1]);
 
-    const alarms = alarmIds.map((id) => {
-        return (
-            <Alarm 
-                id={id}
-                key={id}
-                deleteAlarm={() => setAlarmIds(deleteIdFromArray(id, alarmIds))}
-            />
-        )
-    });
+    const alarms = alarmIds.map((id) =>
+        <Alarm
+            id={id}
+            key={id}
+            deleteAlarm={() => setAlarmIds(deleteIdFromArray(id, alarmIds))}
+        />
+    );
 
     return (
         <div className={className}>
-            <button
-                onClick={() => setAlarmIds(addIdToArray(alarmIds))}
-            >Add Alarm</button>
+            <button onClick={() => setAlarmIds(addIdToArray(alarmIds))}>Add Alarm</button>
             {alarms}
         </div>
     )

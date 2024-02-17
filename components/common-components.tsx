@@ -2,9 +2,7 @@ import { useState } from "react";
 import { handleTimeInput, convertClockTextToTime } from "@/functions/general";
 
 export function TimePicker({ setTime, }: { setTime: Function }) {
-
     const [userInput, setUserInput] = useState("000000");
-
     const timerInputs = ["hours", "minutes", "seconds"].map((value, index) => {
         return (
             <div key={index} className="inline">
