@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { deleteIdFromArray, addIdToArray, convertMillisecondsToClockText } from "@/functions/general";
+import { deleteIdFromArray, addIdToArray, convertMillisecondsToClockTextWithLetters, convertMillisecondsToClockText } from "@/functions/general";
 import { TimePicker } from "./common-components";
 
 import { Howl } from 'howler';
@@ -34,7 +34,7 @@ function Alarm({ id, deleteAlarm }: { id: number, deleteAlarm: () => void }) {
                 setRemainingTime(endTime - now);
             }
 
-        }, 50);
+        }, 100);
         setIsActive(true)
     }
 
@@ -59,11 +59,20 @@ function Alarm({ id, deleteAlarm }: { id: number, deleteAlarm: () => void }) {
                 setTime={(input: number) => {
                     const today = new Date();
                     const beginningOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                    setEndTime(input + beginningOfDay.getTime());
+                    let newEndTime = 0
+
+                    if (endTime !== 0 && endTime <= today.getTime()) {
+                        newEndTime = input + beginningOfDay.getTime() + 24 * 60 * 60 * 1000
+                    } else {
+                        newEndTime = input + beginningOfDay.getTime()
+                    }
+
+                    setEndTime(newEndTime)
                 }}
             />
             {`Time until alarm: ${convertMillisecondsToClockText(remainingTime)}`}
-            <button onClick={toggleAlarmActivation}>{buttonText}</button>
+            <button onClick={toggleAlarmActivation}
+            >{buttonText}</button>
             <button onClick={deleteAlarm}>Delete</button>
         </div >
     )
