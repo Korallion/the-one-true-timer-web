@@ -1,88 +1,99 @@
 import { useState, useRef } from "react";
-import { deleteIdFromArray, addIdToArray, convertMillisecondsToClockTextWithLetters } from "@/functions/general";
+import { deleteIdFromArray, addIdToArray, convertMillisecondsToClockTextWithLetters, convertMillisecondsToClockText } from "@/functions/general";
 import { TimePicker } from "./common-components";
 
 import { Howl } from 'howler';
 
+// What is still needed?
+// - repeat alarm / choice of days
+// - "tomorrow" alarm
+// - snooze function
+
 const alarmSound = new Howl({
-    src: ["/tott_timer_end.mp3"],
+  src: ["/tott_timer_end.mp3"],
 })
 
-function Alarm({id, deleteAlarm}: {id: number, deleteAlarm: () => void}) {
-    const [endTime, setEndTime] = useState<number>(0);
-    const [remainingTime, setRemainingTime] = useState(0);
-    const [active, setActive] = useState(false);
+function Alarm({ id, deleteAlarm }: { id: number, deleteAlarm: () => void }) {
+  const [endTime, setEndTime] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(0);
+  const [isActive, setIsActive] = useState(false);
 
-    const intervalID = useRef<NodeJS.Timer>();
+  const intervalID = useRef<NodeJS.Timer>();
+  const buttonText = isActive ? "Deactivate" : "Activate"
 
-    return (
-        <div>
+  function activateAlarm() {
+    intervalID.current = setInterval(() => {
+      const now = new Date().getTime();
 
-            {`Alarm ${id}`}
+      if (endTime - now > 0) {
+        setRemainingTime(endTime - now);
+      } else {
+        alarmSound.play();
+        setRemainingTime(0);
+        clearInterval(intervalID.current);
+      }
 
-            <TimePicker 
-                setTime={(input: number) => {
-                    const today = new Date();
-                    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }, 100);
+    setIsActive(true)
+  }
 
-                    if (endTime !== 0 && endTime <= today.getTime()) setEndTime(input + todayStart.getTime() + 24 * 60 * 60 * 1000)
-                    else  setEndTime(input + todayStart.getTime());
-                }}
-            />
+  function deactivateAlarm() {
+    clearInterval(intervalID.current);
+    setRemainingTime(0);
+    setIsActive(false)
+  }
 
-            {`Time until alarm: ${convertMillisecondsToClockTextWithLetters(remainingTime)}`}
+  function toggleAlarmActivation() {
+    if (isActive) {
+      deactivateAlarm()
+    } else {
+      activateAlarm()
+    }
+  }
 
-            <button onClick={() => {
-                if (!active) {
-                    setRemainingTime(endTime - new Date().getTime());
+  function setAlarmTime(input: number) {
+    const today = new Date();
+    const beginningOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    let newEndTime = 0
 
-                    intervalID.current = setInterval(() => {
-                        const now = new Date().getTime();
+    if (input <= today.getTime()) {
+      newEndTime = input + beginningOfDay.getTime() + 24 * 60 * 60 * 1000
+    } else {
+      newEndTime = input + beginningOfDay.getTime()
+    }
 
-                        if (endTime - now <= 0) {
-                            alarmSound.play();
+    setEndTime(newEndTime)
+  }
 
-                            setRemainingTime(0);
-                            clearInterval(intervalID.current);
-                        } else {
-                            setRemainingTime(endTime - now);
-                        }
-
-                    }, 50);
-
-                } else {
-                    clearInterval(intervalID.current);
-                    setRemainingTime(0);
-                }
-
-                setActive(!active);
-            }} 
-            >{active ? "Deactivate": "Activate"}</button>
-
-            <button onClick={deleteAlarm}>Delete</button>
-        </div>
-    )
+  return (
+    <div>
+      {`Alarm ${id}`}
+      <TimePicker setTime={setAlarmTime} stopTimer={deactivateAlarm} />
+      {`Time until alarm: ${convertMillisecondsToClockTextWithLetters(remainingTime)}`}
+      <button onClick={toggleAlarmActivation}>{buttonText}</button>
+      <button onClick={deleteAlarm}>Delete</button>
+    </div >
+  )
 }
 
-export function AlarmPage({className}: {className: string}) {
-    const [alarmIds, setAlarmIds] = useState([1]);
+export function AlarmPage({ className }: { className: string }) {
+  const [alarmIds, setAlarmIds] = useState([1]);
+  function addNewAlarm() {
+    setAlarmIds(addIdToArray(alarmIds))
+  }
 
-    const alarms = alarmIds.map((id) => {
-        return (
-            <Alarm 
-                id={id}
-                key={id}
-                deleteAlarm={() => setAlarmIds(deleteIdFromArray(id, alarmIds))}
-            />
-        )
-    });
+  const alarms = alarmIds.map((id) =>
+    <Alarm
+      id={id}
+      key={id}
+      deleteAlarm={() => setAlarmIds(deleteIdFromArray(id, alarmIds))}
+    />
+  );
 
-    return (
-        <div className={className}>
-            <button
-                onClick={() => setAlarmIds(addIdToArray(alarmIds))}
-            >Add Alarm</button>
-            {alarms}
-        </div>
-    )
+  return (
+    <div className={className}>
+      <button onClick={addNewAlarm}>Add Alarm</button>
+      {alarms}
+    </div>
+  )
 }
