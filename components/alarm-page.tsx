@@ -78,6 +78,9 @@ function Alarm({ id, deleteAlarm }: { id: number, deleteAlarm: () => void }) {
 
 export function AlarmPage({ className }: { className: string }) {
   const [alarmIds, setAlarmIds] = useState([1]);
+  function addNewAlarm() {
+    setAlarmIds(addIdToArray(alarmIds))
+  }
 
   const alarms = alarmIds.map((id) =>
     <Alarm
@@ -89,7 +92,7 @@ export function AlarmPage({ className }: { className: string }) {
 
   return (
     <div className={className}>
-      <button onClick={() => setAlarmIds(addIdToArray(alarmIds))}>Add Alarm</button>
+      <button onClick={addNewAlarm}>Add Alarm</button>
       {alarms}
     </div>
   )
