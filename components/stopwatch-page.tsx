@@ -55,21 +55,6 @@ function Stopwatch({ stopwatchId, deleteStopwatch }: { stopwatchId: number, dele
     setHistory(newHistory);
   }
 
-  function StopwatchHistory() {
-    return <ul>
-      {
-        history.map((entry, index) => {
-          return (
-            <li key={index}>
-              {entry.value}
-              {entry.deletable && <button onClick={() => { removeHistoryEntry(index) }}>Delete Lap</button>}
-            </li>
-          )
-        })
-      }
-    </ul>
-  };
-
   function clearAndResetTimer() {
     clearInterval(intervalID.current);
     intervalID.current = undefined;
@@ -102,7 +87,7 @@ function Stopwatch({ stopwatchId, deleteStopwatch }: { stopwatchId: number, dele
       <button
         disabled={paused}
         onClick={() => addHistoryEntry(displayTime, true)}>Lap</button>
-      <StopwatchHistory />
+      <StopwatchHistory history={history} removeHistoryEntry={removeHistoryEntry}/>
       {(history.length !== 0 || intervalID.current !== undefined) && <button onClick={clearAndResetTimer}
       >Clear and Reset</button>}
     </div>
@@ -128,4 +113,21 @@ export function StopwatchPage({ className }: { className: string }) {
       {stopwatches}
     </div>
   )
+}
+
+function StopwatchHistory({ history, removeHistoryEntry }: { history: { value: string, deletable: boolean }[], removeHistoryEntry: (index: number) => void }) {
+  return <ul>
+      {
+        history.map((entry, index) => {
+          return (
+            <li key={index}>
+              {entry.value}
+              {entry.deletable && <button onClick={() => {
+                removeHistoryEntry(index)
+              }}>Delete Lap</button>}
+            </li>
+          )
+        })
+      }
+    </ul>
 }
