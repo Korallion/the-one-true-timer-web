@@ -8,27 +8,17 @@ import { ClockPage } from '@/components/clock-page';
 
 const inter = Inter({ subsets: ['latin'] })
 
+enum TAB {
+  STOPWATCHES,
+  TIMERS,
+  ALARMS,
+  CLOCKS
+}
+
+const clickColor = '#35194f'
+
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('Stopwatches');
-
-  let pageIndex = 0;
-
-  switch (activeTab) {
-    case "Stopwatches":
-      pageIndex = 0;
-      break;
-    case "Timers":
-      pageIndex = 1;
-      break;
-    case "Alarms":
-      pageIndex = 2;
-      break;
-    case "Clocks":
-      pageIndex = 3;
-      break;
-    default:
-      pageIndex = 0;
-  }
+  const [activeTab, setActiveTab] = useState(TAB.STOPWATCHES);
 
   return (
     <>
@@ -37,35 +27,39 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div>
+      <div className='content'>
         <h1 className='menu-title'>The One True Timer</h1>
         <div className='menu-bar'>
           <button
             className='menu-button'
-            onClick={() => setActiveTab("Stopwatches")}
+            onClick={() => setActiveTab(TAB.STOPWATCHES)}
+            style={activeTab === TAB.STOPWATCHES ? { backgroundColor: clickColor} : {}}
           >Stopwatches</button>
 
           <button
             className='menu-button'
-            onClick={() => setActiveTab("Timers")}
+            onClick={() => setActiveTab(TAB.TIMERS)}
+            style={activeTab === TAB.TIMERS ? { backgroundColor: clickColor} : {}}
           >Timers</button>
 
           <button
             className='menu-button'
-            onClick={() => setActiveTab("Alarms")}
+            onClick={() => setActiveTab(TAB.ALARMS)}
+            style={activeTab === TAB.ALARMS ? { backgroundColor: clickColor} : {}}
           >Alarms</button>
 
           <button
             className='menu-button'
-            onClick={() => setActiveTab("Clocks")}
+            onClick={() => setActiveTab(TAB.CLOCKS)}
+            style={activeTab === TAB.CLOCKS ? { backgroundColor: clickColor} : {}}
           >Clocks</button>
         </div>
 
         <div className='content'>
-          <StopwatchPage className={"" + (pageIndex === 0 ? "" : " hidden")} />
-          <TimerPage className={"" + (pageIndex === 1 ? "" : " hidden")} />
-          <AlarmPage className={"" + (pageIndex === 2 ? "" : " hidden")} />
-          <ClockPage className={"" + (pageIndex === 3 ? "" : " hidden")} />
+          <StopwatchPage className={"" + (activeTab === TAB.STOPWATCHES ? "" : " hidden")} />
+          <TimerPage className={"" + (activeTab === TAB.TIMERS ? "" : " hidden")} />
+          <AlarmPage className={"" + (activeTab === TAB.ALARMS ? "" : " hidden")} />
+          <ClockPage className={"" + (activeTab === TAB.CLOCKS ? "" : " hidden")} />
         </div>
       </div>
     </>
